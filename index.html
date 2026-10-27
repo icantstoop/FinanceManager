@@ -13,11 +13,17 @@
         <p>Управление личными финансами</p>
 
         <div class="input-section">
+            <select id="transactionType">
+                <option value="income">Доход</option>
+                <option value="expense">Расход</option>
+            </select>
+
             <input
                 type="text"
                 id="transactionInput"
-                placeholder="Например, продукты — 1500 руб."
+                placeholder="Например, зарплата — 50000 руб."
             >
+
             <button onclick="addTransaction()">Добавить</button>
         </div>
 
