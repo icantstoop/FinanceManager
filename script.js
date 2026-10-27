@@ -1,4 +1,5 @@
 
+
 function addTransaction() {
     const transactionInput = document.getElementById('transactionInput');
     const transactionText = transactionInput.value.trim();
