@@ -1,7 +1,7 @@
 
-
 function addTransaction() {
     const transactionInput = document.getElementById('transactionInput');
+    const transactionType = document.getElementById('transactionType');
     const transactionText = transactionInput.value.trim();
 
     
@@ -10,15 +10,21 @@ function addTransaction() {
         return;
     }
 
-  
+    
     const transactionList = document.getElementById('transactionList');
     const li = document.createElement('li');
     const span = document.createElement('span');
 
-    span.textContent = transactionText;
+    const typeText = transactionType.value === 'income'
+        ? 'Доход'
+        : 'Расход';
 
+    span.textContent = typeText + ': ' + transactionText;
+
+    
     const deleteButton = document.createElement('button');
     deleteButton.textContent = 'Удалить';
+
     deleteButton.onclick = function () {
         li.remove();
     };
@@ -31,4 +37,3 @@ function addTransaction() {
     transactionInput.value = '';
     transactionInput.focus();
 }
-
