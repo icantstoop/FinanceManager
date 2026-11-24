@@ -1,0 +1,61 @@
+@startuml Delete_Transaction_Sequence
+
+title Удаление финансовой операции
+
+actor "Пользователь" as User
+participant "Интерфейс" as UI
+participant "Контроллер" as Controller
+participant "Сервис операций" as Service
+database "База данных" as DB
+
+User -> UI: Выбирает операцию
+activate UI
+
+UI --> User: Запрос подтверждения удаления
+
+alt Пользователь подтверждает удаление
+
+    User -> UI: Подтверждает удаление
+
+    UI -> Controller: DELETE /api/transactions/{id}
+    activate Controller
+
+    Controller -> Service: deleteTransaction(id, user_id)
+    activate Service
+
+    Service -> DB: DELETE FROM Transactions\nWHERE transaction_id = ? AND user_id = ?
+    activate DB
+
+    DB --> Service: rows_affected
+    deactivate DB
+
+    alt Операция удалена
+
+        Service --> Controller: SuccessResponse
+        Controller --> UI: 200 OK
+
+        UI -> UI: Обновить список операций
+        UI -> UI: Пересчитать баланс
+        UI --> User: Операция успешно удалена
+
+    else Операция не найдена
+
+        Service --> Controller: ErrorResponse
+        Controller --> UI: 404 Not Found
+        UI --> User: Сообщение об ошибке
+
+    end
+
+    deactivate Service
+    deactivate Controller
+
+else Пользователь отменяет удаление
+
+    User -> UI: Отмена
+    UI --> User: Операция сохранена
+
+end
+
+deactivate UI
+
+@enduml
