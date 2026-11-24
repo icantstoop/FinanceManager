@@ -1,0 +1,48 @@
+@startuml Add_Transaction_Sequence
+
+title Добавление финансовой операции
+
+actor "Пользователь" as User
+participant "Интерфейс" as UI
+participant "Контроллер" as Controller
+participant "Сервис операций" as Service
+database "База данных" as DB
+
+User -> UI: Вводит сумму, тип,\nкатегорию и дату операции
+activate UI
+
+UI -> Controller: POST /api/transactions
+activate Controller
+
+Controller -> Service: createTransaction(data)
+activate Service
+
+Service -> Service: validateTransaction(data)
+
+alt Данные корректны
+
+    Service -> DB: INSERT INTO Transactions
+    activate DB
+    DB --> Service: transaction_id
+    deactivate DB
+
+    Service --> Controller: SuccessResponse
+    Controller --> UI: 201 Created
+
+    UI -> UI: Обновить список операций
+    UI -> UI: Пересчитать баланс
+    UI --> User: Операция успешно добавлена
+
+else Данные некорректны
+
+    Service --> Controller: ErrorResponse
+    Controller --> UI: 400 Bad Request
+    UI --> User: Показать сообщение об ошибке
+
+end
+
+deactivate Service
+deactivate Controller
+deactivate UI
+
+@enduml
