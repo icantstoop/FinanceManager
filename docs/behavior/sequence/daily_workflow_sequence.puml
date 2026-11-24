@@ -1,0 +1,71 @@
+@startuml Daily_Workflow_Sequence
+
+title Ежедневный учёт финансов
+
+actor "Пользователь" as User
+participant "Интерфейс" as UI
+participant "Контроллер" as Controller
+participant "Сервис операций" as Service
+participant "Сервис аналитики" as Analytics
+database "База данных" as DB
+
+== Утренний обзор финансов ==
+
+User -> UI: Открывает приложение
+UI -> Controller: GET /api/transactions
+Controller -> Service: getTransactions(user_id)
+Service -> DB: SELECT * FROM Transactions\nWHERE user_id = ?
+DB --> Service: Список операций
+Service --> Controller: TransactionsListResponse
+Controller --> UI: 200 OK
+UI -> UI: Рассчитать текущий баланс
+UI --> User: Показать баланс и историю операций
+
+== Учёт доходов и расходов ==
+
+loop Для каждой новой операции
+
+    User -> UI: Вводит данные операции
+    UI -> Controller: POST /api/transactions
+    Controller -> Service: createTransaction(data)
+    Service -> Service: validateTransaction(data)
+
+    alt Данные корректны
+
+        Service -> DB: INSERT INTO Transactions
+        DB --> Service: transaction_id
+        Service --> Controller: SuccessResponse
+        Controller --> UI: 201 Created
+        UI -> UI: Обновить баланс
+        UI --> User: Операция добавлена
+
+    else Данные некорректны
+
+        Service --> Controller: ErrorResponse
+        Controller --> UI: 400 Bad Request
+        UI --> User: Показать ошибку
+
+    end
+
+end
+
+== Вечерняя финансовая аналитика ==
+
+User -> UI: Запрашивает отчёт за день
+UI -> Controller: GET /api/analytics/daily
+Controller -> Analytics: getDailyReport(user_id)
+
+Analytics -> DB: Получить операции пользователя\nза выбранный день
+DB --> Analytics: Финансовые данные
+
+Analytics -> Analytics: Рассчитать сумму доходов
+Analytics -> Analytics: Рассчитать сумму расходов
+Analytics -> Analytics: Рассчитать разницу\nдоходов и расходов
+
+Analytics --> Controller: DailyReport
+Controller --> UI: 200 OK
+
+UI -> UI: Сформировать финансовый отчёт
+UI --> User: Показать статистику за день
+
+@enduml

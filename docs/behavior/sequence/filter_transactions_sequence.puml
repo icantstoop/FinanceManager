@@ -1,0 +1,47 @@
+@startuml Filter_Transactions_Sequence
+
+title Фильтрация финансовых операций по категориям
+
+actor "Пользователь" as User
+participant "Интерфейс" as UI
+participant "Контроллер" as Controller
+participant "Сервис операций" as Service
+database "База данных" as DB
+
+User -> UI: Выбирает категорию
+activate UI
+
+UI -> Controller: GET /api/transactions?category_id={id}
+activate Controller
+
+Controller -> Service: getTransactionsByCategory(user_id, category_id)
+activate Service
+
+Service -> DB: SELECT * FROM Transactions\nWHERE user_id = ? AND category_id = ?
+activate DB
+
+DB --> Service: transactions_list
+deactivate DB
+
+alt Операции найдены
+
+    Service -> Service: Подготовить список операций
+    Service --> Controller: TransactionsListResponse
+    Controller --> UI: 200 OK
+
+    UI -> UI: Обновить список операций
+    UI --> User: Показать операции выбранной категории
+
+else Операции отсутствуют
+
+    Service --> Controller: EmptyListResponse
+    Controller --> UI: 200 OK
+    UI --> User: Нет операций в выбранной категории
+
+end
+
+deactivate Service
+deactivate Controller
+deactivate UI
+
+@enduml
