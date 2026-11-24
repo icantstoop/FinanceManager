@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+
+actor "Пользователь" as User
+
+rectangle "FinanceManager" {
+    usecase "Добавление операции" as Add
+    usecase "Редактирование операции" as Edit
+    usecase "Удаление операции" as Delete
+    usecase "Просмотр истории операций" as View
+    usecase "Фильтрация по категориям" as Filter
+    usecase "Фильтрация по типу операции" as Type
+    usecase "Просмотр баланса" as Balance
+    usecase "Просмотр статистики" as Stats
+    usecase "Валидация данных" as Validate
+    usecase "Сохранение изменений" as Save
+
+    Add .> Validate : <<include>>
+    Edit .> Validate : <<include>>
+    Add .> Save : <<include>>
+    Edit .> Save : <<include>>
+    Delete .> Save : <<include>>
+
+    Filter .> View : <<extend>>
+    Type .> View : <<extend>>
+}
+
+User -- Add
+User -- Edit
+User -- Delete
+User -- View
+User -- Balance
+User -- Stats
+
+@enduml
